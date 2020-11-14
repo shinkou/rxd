@@ -1,6 +1,6 @@
 use std::convert::{TryFrom, TryInto};
 use std::fs::File;
-use std::io::{Read, Result, Seek, SeekFrom};
+use std::io::{Read, Write, Result, Seek, SeekFrom};
 
 fn dump_file(filename: &str, off: i64, lmt: u64, bpl: u8) -> Result<()>
 {
@@ -21,23 +21,26 @@ fn dump_file(filename: &str, off: i64, lmt: u64, bpl: u8) -> Result<()>
 	let mut n = f.read(&mut buf[..])?;
 	let bpl64: u64 = u64::from(bpl);
 	let mut cnt: u64 = 0;
+	let s = std::io::stdout();
+	let mut stdout = s.lock();
 	while 0 < n && (lmt > cnt || 0 == lmt)
 	{
 		for c in &buf[..n]
 		{
 			if 0 == cnt % bpl64
 			{
-				print!("{}", format!("{:0width$x}:", idx, width = width));
+				write!(stdout, "{}", format!("{:0width$x}:", idx, width = width))?;
 			}
-			print!("{}", format!(" {:02x}", c));
-			if bpl64 - 1 == cnt % bpl64 {println!();}
+			write!(stdout, "{}", format!(" {:02x}", c))?;
+			if bpl64 - 1 == cnt % bpl64 {writeln!(stdout)?;}
 			idx += 1;
 			cnt += 1;
 			if lmt <= cnt && 0 < lmt {break;}
 		}
 		n = f.read(&mut buf[..])?;
 	}
-	if 0 < cnt % bpl64 {println!();}
+	if 0 < cnt % bpl64 {writeln!(stdout)?;}
+	stdout.flush()?;
 
 	Ok(())
 }
@@ -49,19 +52,21 @@ fn dump_stdin(bpl: u8) -> Result<()>
 	let mut buf = [0; 8192];
 	let mut f = std::io::stdin();
 	let mut n = f.read(&mut buf[..])?;
+	let s = std::io::stdout();
+	let mut stdout = s.lock();
 	while 0 < n
 	{
 		for c in &buf[..n]
 		{
-			if 0 == idx % bpl64 {print!("{}", format!("{:08x}:", idx));}
-			print!("{}", format!(" {:02x}", c));
-			if bpl64 - 1 == idx % bpl64 {println!();}
+			if 0 == idx % bpl64 {write!(stdout, "{}", format!("{:08x}:", idx))?;}
+			write!(stdout, "{}", format!(" {:02x}", c))?;
+			if bpl64 - 1 == idx % bpl64 {writeln!(stdout)?;}
 			idx += 1;
 		}
 		n = f.read(&mut buf[..])?;
 	}
-	if 0 < idx % bpl64 {println!();}
-
+	if 0 < idx % bpl64 {writeln!(stdout)?;}
+	stdout.flush()?;
 	Ok(())
 }
 
