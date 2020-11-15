@@ -63,9 +63,12 @@ fn dump_stdin(bpl: u8) -> Result<()>
 	{
 		for c in &buf[..n]
 		{
-			if 0 == idx % bpl64 {print!("{}", format!("{:08x}:", idx));}
-			print!("{}", format!(" {:02x}", c));
-			if bpl64 - 1 == idx % bpl64 {println!();}
+			match (idx + 1) % bpl64
+			{
+				0 => println!("{}", format!(" {:02x}", c))
+				, 1 => print!("{}", format!("{:08x}: {:02x}", idx, c))
+				, _ => print!("{}", format!(" {:02x}", c))
+			};
 			idx += 1;
 		}
 		n = f.read(&mut buf[..])?;
