@@ -25,12 +25,22 @@ fn dump_file(filename: &str, off: i64, lmt: u64, bpl: u8) -> Result<()>
 	{
 		for c in &buf[..n]
 		{
-			if 0 == cnt % bpl64
+			match (cnt + 1) % bpl64
 			{
-				print!("{}", format!("{:0width$x}:", idx, width = width));
-			}
-			print!("{}", format!(" {:02x}", c));
-			if bpl64 - 1 == cnt % bpl64 {println!();}
+				0 => println!("{}", format!(" {:02x}", c))
+				, 1 => print!
+					(
+						"{}"
+						, format!
+						(
+							"{:0width$x}: {:02x}"
+							, idx
+							, c
+							, width = width
+						)
+					)
+				, _ => print!("{}", format!(" {:02x}", c))
+			};
 			idx += 1;
 			cnt += 1;
 			if lmt <= cnt && 0 < lmt {break;}
