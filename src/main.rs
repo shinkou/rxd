@@ -94,6 +94,6 @@ fn main()
 			println!("Error: {}", e);
 		}
 
-		delimit_line = delimit_line || true;
+		delimit_line = true;
 	}
 }

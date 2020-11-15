@@ -29,16 +29,16 @@ fn dump_file(filename: &str, off: i64, lmt: u64, bpl: u8) -> Result<()>
 			{
 				0 => println!("{}", format!(" {:02x}", c))
 				, 1 => print!
+				(
+					"{}"
+					, format!
 					(
-						"{}"
-						, format!
-						(
-							"{:0width$x}: {:02x}"
-							, idx
-							, c
-							, width = width
-						)
+						"{:0width$x}: {:02x}"
+						, idx
+						, c
+						, width = width
 					)
+				)
 				, _ => print!("{}", format!(" {:02x}", c))
 			};
 			idx += 1;
