@@ -51,7 +51,7 @@ fn do_args() -> (i64, u64, u8, Vec<String>)
 	let matches = match opts.parse(&args[1..])
 	{
 		Ok(m) => m
-		, Err(e) => panic!(e.to_string())
+		, Err(e) => panic!("{}", e.to_string())
 	};
 
 	if matches.opt_present("h") || matches.free.len() < 1
